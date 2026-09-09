@@ -10,7 +10,8 @@ export default function Home() {
 
   useEffect(() => {
     if (loading) return;
-    router.replace(user ? '/calendar' : '/login');
+    if (!user) router.replace('/login');
+    else router.replace(user.role === 'super_admin' ? '/platform' : '/calendar');
   }, [user, loading, router]);
 
   return null;

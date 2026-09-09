@@ -8,12 +8,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  propertyId: string;
+  // Null only for SUPER_ADMIN — every property-scoped role must have one.
+  @Column('uuid', { nullable: true })
+  propertyId: string | null;
 
-  @ManyToOne(() => Property, (p) => p.users, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Property, (p) => p.users, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'propertyId' })
-  property: Property;
+  property: Property | null;
 
   @Column()
   name: string;

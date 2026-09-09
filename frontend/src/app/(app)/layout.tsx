@@ -11,9 +11,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user) router.replace('/login');
+    if (!loading && user?.role === 'super_admin') router.replace('/platform');
   }, [user, loading, router]);
 
-  if (loading || !user) {
+  if (loading || !user || user.role === 'super_admin') {
     return <div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">Loading…</div>;
   }
 

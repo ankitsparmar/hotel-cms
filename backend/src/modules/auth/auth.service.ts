@@ -76,6 +76,18 @@ export class AuthService {
     if (!ok) {
       throw new UnauthorizedException('Invalid email or password');
     }
+    if (user.propertyId) {
+      const property = await this.properties.findOne({ where: { id: user.propertyId } });
+      if (property?.suspended) {
+        throw new UnauthorizedException('This property has been suspended');
+      }
+    }
+    return this.sign(user);
+  }
+
+  // Exposed so other modules (e.g. platform bootstrap, which creates a user
+  // outside the normal signup/login flow) can issue a token the same way.
+  issueToken(user: User) {
     return this.sign(user);
   }
 }

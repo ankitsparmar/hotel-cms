@@ -6,7 +6,7 @@ import { AuthUser } from '../../common/decorators/current-user.decorator';
 
 export interface JwtPayload {
   sub: string;
-  propertyId: string;
+  propertyId: string | null;
   role: string;
   email: string;
 }

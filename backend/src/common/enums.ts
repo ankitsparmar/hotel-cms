@@ -1,4 +1,8 @@
 export enum UserRole {
+  // Platform-wide role, not scoped to any property. Never assignable through
+  // the per-property /admin/users endpoint — only created via the one-time
+  // /platform/bootstrap flow. propertyId is null for this role.
+  SUPER_ADMIN = 'super_admin',
   OWNER = 'owner',
   ADMIN = 'admin',
   FRONT_DESK = 'front_desk',

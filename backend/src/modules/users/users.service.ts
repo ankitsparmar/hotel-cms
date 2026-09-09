@@ -24,6 +24,9 @@ export class UsersService {
   ) {}
 
   private assertCanManage(actor: AuthUser, targetRole?: UserRole) {
+    if (targetRole === UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException('The super admin role cannot be assigned here');
+    }
     if (actor.role === UserRole.OWNER) return;
     if (actor.role === UserRole.ADMIN) {
       if (targetRole && PROPERTY_ADMIN_ROLES.includes(targetRole)) {

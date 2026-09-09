@@ -2,7 +2,8 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export interface AuthUser {
   userId: string;
-  propertyId: string;
+  // Null only for a SUPER_ADMIN token, which isn't scoped to any property.
+  propertyId: string | null;
   role: string;
   email: string;
 }

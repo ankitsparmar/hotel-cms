@@ -18,6 +18,10 @@ export class Property {
   @Column({ default: 'GBP' })
   currency: string;
 
+  // Set by a platform super admin. Suspended properties' users cannot log in.
+  @Column({ default: false })
+  suspended: boolean;
+
   @OneToMany(() => User, (u) => u.property)
   users: User[];
 

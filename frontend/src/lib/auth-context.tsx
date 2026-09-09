@@ -8,8 +8,9 @@ export interface AuthedUser {
   id: string;
   name: string;
   email: string;
-  role: 'owner' | 'admin' | 'front_desk' | 'housekeeping' | 'accountant';
-  propertyId: string;
+  role: 'super_admin' | 'owner' | 'admin' | 'front_desk' | 'housekeeping' | 'accountant';
+  // Null only for super_admin, which isn't scoped to any property.
+  propertyId: string | null;
 }
 
 interface AuthContextValue {
@@ -37,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(res.accessToken);
     setStoredUser(res.user);
     setUser(res.user);
-    router.push('/calendar');
+    router.push(res.user.role === 'super_admin' ? '/platform' : '/calendar');
   }
 
   async function signup(propertyName: string, ownerName: string, email: string, password: string) {

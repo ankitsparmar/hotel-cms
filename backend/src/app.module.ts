@@ -11,6 +11,7 @@ import { HousekeepingModule } from './modules/housekeeping/housekeeping.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { OtaModule } from './modules/ota/ota.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { PlatformModule } from './modules/platform/platform.module';
 import { PropertiesModule } from './modules/properties/properties.module';
 import { RatePlansModule } from './modules/rate-plans/rate-plans.module';
 import { ReservationsModule } from './modules/reservations/reservations.module';
@@ -52,6 +53,7 @@ import { UsersModule } from './modules/users/users.module';
     PaymentsModule,
     InvoicesModule,
     OtaModule,
+    PlatformModule,
   ],
   controllers: [AppController],
 })

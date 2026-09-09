@@ -19,7 +19,7 @@ export function setToken(token: string | null) {
   else window.localStorage.removeItem('hotel_cms_token');
 }
 
-export function getStoredUser(): { id: string; name: string; email: string; role: string; propertyId: string } | null {
+export function getStoredUser(): { id: string; name: string; email: string; role: string; propertyId: string | null } | null {
   if (typeof window === 'undefined') return null;
   const raw = window.localStorage.getItem('hotel_cms_user');
   return raw ? JSON.parse(raw) : null;
