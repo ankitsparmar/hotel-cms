@@ -16,10 +16,10 @@ interface Reservation {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: 'bg-stone-100 text-stone-600',
+  pending: 'bg-gray-100 text-gray-600',
   confirmed: 'bg-sky-100 text-sky-800',
-  checked_in: 'bg-emerald-100 text-emerald-800',
-  checked_out: 'bg-stone-100 text-stone-500',
+  checked_in: 'bg-blue-100 text-blue-800',
+  checked_out: 'bg-gray-100 text-gray-500',
   cancelled: 'bg-red-50 text-red-500',
   no_show: 'bg-amber-100 text-amber-800',
 };
@@ -44,11 +44,11 @@ export default function ReservationsPage() {
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-stone-900">Reservations</h1>
-          <p className="text-sm text-stone-500 mt-0.5">Direct bookings and imports from Booking.com.</p>
+          <h1 className="text-xl font-semibold text-gray-900">Reservations</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Direct bookings and imports from Booking.com.</p>
         </div>
         <div className="flex items-center gap-2">
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="text-sm border border-stone-300 rounded-md px-2 py-1.5">
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="text-sm border border-gray-300 rounded-md px-2 py-1.5">
             <option value="">All statuses</option>
             <option value="confirmed">Confirmed</option>
             <option value="checked_in">Checked in</option>
@@ -56,18 +56,18 @@ export default function ReservationsPage() {
             <option value="cancelled">Cancelled</option>
             <option value="no_show">No-show</option>
           </select>
-          <Link href="/reservations/new" className="rounded-md bg-emerald-800 text-white text-sm font-medium px-4 py-2 hover:bg-emerald-900">
+          <Link href="/reservations/new" className="rounded-md bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700">
             + New reservation
           </Link>
         </div>
       </div>
 
-      {loading && <p className="text-sm text-stone-400">Loading…</p>}
+      {loading && <p className="text-sm text-gray-400">Loading…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-stone-50 text-stone-500 text-xs uppercase tracking-wide">
+          <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
             <tr>
               <th className="text-left px-4 py-2 font-medium">Guest</th>
               <th className="text-left px-4 py-2 font-medium">Rooms</th>
@@ -79,26 +79,26 @@ export default function ReservationsPage() {
           </thead>
           <tbody>
             {data?.map((r) => (
-              <tr key={r.id} className="border-t border-stone-100">
-                <td className="px-4 py-2.5 font-medium text-stone-800">
+              <tr key={r.id} className="border-t border-gray-100">
+                <td className="px-4 py-2.5 font-medium text-gray-800">
                   <Link href={`/reservations/${r.id}`} className="hover:underline">
                     {r.guest?.name}
                   </Link>
                 </td>
-                <td className="px-4 py-2.5 text-stone-600">{r.rooms.map((rr) => rr.room?.roomNumber).join(', ')}</td>
-                <td className="px-4 py-2.5 text-stone-600">{r.checkIn} → {r.checkOut}</td>
-                <td className="px-4 py-2.5 text-stone-600 capitalize">{r.source.replace('_', '.')}</td>
+                <td className="px-4 py-2.5 text-gray-600">{r.rooms.map((rr) => rr.room?.roomNumber).join(', ')}</td>
+                <td className="px-4 py-2.5 text-gray-600">{r.checkIn} → {r.checkOut}</td>
+                <td className="px-4 py-2.5 text-gray-600 capitalize">{r.source.replace('_', '.')}</td>
                 <td className="px-4 py-2.5">
                   <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_STYLES[r.status]}`}>{r.status.replace('_', ' ')}</span>
                 </td>
                 <td className="px-4 py-2.5 text-right space-x-2">
                   {r.status === 'confirmed' && (
-                    <button onClick={() => quickAction(r.id, 'check-in')} className="text-xs text-emerald-700 hover:underline">
+                    <button onClick={() => quickAction(r.id, 'check-in')} className="text-xs text-blue-700 hover:underline">
                       Check in
                     </button>
                   )}
                   {r.status === 'checked_in' && (
-                    <button onClick={() => quickAction(r.id, 'check-out')} className="text-xs text-emerald-700 hover:underline">
+                    <button onClick={() => quickAction(r.id, 'check-out')} className="text-xs text-blue-700 hover:underline">
                       Check out
                     </button>
                   )}
@@ -107,7 +107,7 @@ export default function ReservationsPage() {
             ))}
           </tbody>
         </table>
-        {data?.length === 0 && !loading && <p className="text-sm text-stone-400 px-4 py-6">No reservations found.</p>}
+        {data?.length === 0 && !loading && <p className="text-sm text-gray-400 px-4 py-6">No reservations found.</p>}
       </div>
     </div>
   );

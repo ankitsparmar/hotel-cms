@@ -57,38 +57,38 @@ export default function NewReservationPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-xl font-semibold text-stone-900 mb-1">New reservation</h1>
-      <p className="text-sm text-stone-500 mb-6">Direct booking — walk-in, phone or email.</p>
+      <h1 className="text-xl font-semibold text-gray-900 mb-1">New reservation</h1>
+      <p className="text-sm text-gray-500 mb-6">Direct booking — walk-in, phone or email.</p>
 
-      <form onSubmit={submit} className="bg-white border border-stone-200 rounded-xl p-5 space-y-4">
+      <form onSubmit={submit} className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</div>}
 
         <div>
-          <h2 className="text-sm font-medium text-stone-700 mb-2">Guest</h2>
+          <h2 className="text-sm font-medium text-gray-700 mb-2">Guest</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            <input required placeholder="Full name" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="rounded-md border border-stone-300 px-3 py-2 text-sm sm:col-span-2" />
-            <input type="email" placeholder="Email (optional)" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="rounded-md border border-stone-300 px-3 py-2 text-sm" />
-            <input placeholder="Phone (optional)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className="rounded-md border border-stone-300 px-3 py-2 text-sm" />
+            <input required placeholder="Full name" value={guestName} onChange={(e) => setGuestName(e.target.value)} className="rounded-md border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
+            <input type="email" placeholder="Email (optional)" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="rounded-md border border-gray-300 px-3 py-2 text-sm" />
+            <input placeholder="Phone (optional)" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className="rounded-md border border-gray-300 px-3 py-2 text-sm" />
           </div>
         </div>
 
         <div>
-          <h2 className="text-sm font-medium text-stone-700 mb-2">Stay</h2>
+          <h2 className="text-sm font-medium text-gray-700 mb-2">Stay</h2>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-stone-500 mb-1">Check-in</label>
-              <input type="date" required value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm" />
+              <label className="block text-xs text-gray-500 mb-1">Check-in</label>
+              <input type="date" required value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs text-stone-500 mb-1">Check-out</label>
-              <input type="date" required value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm" />
+              <label className="block text-xs text-gray-500 mb-1">Check-out</label>
+              <input type="date" required value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
             </div>
           </div>
         </div>
 
         <div>
-          <h2 className="text-sm font-medium text-stone-700 mb-2">Room</h2>
-          <select required value={roomId} onChange={(e) => setRoomId(e.target.value)} className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm">
+          <h2 className="text-sm font-medium text-gray-700 mb-2">Room</h2>
+          <select required value={roomId} onChange={(e) => setRoomId(e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
             <option value="">Select a room…</option>
             {bookableRooms.map((r) => (
               <option key={r.id} value={r.id}>
@@ -96,12 +96,12 @@ export default function NewReservationPage() {
               </option>
             ))}
           </select>
-          <p className="text-xs text-stone-400 mt-1">
+          <p className="text-xs text-gray-400 mt-1">
             The database rejects the booking if this room is already taken for these dates — you don&apos;t need to check availability yourself.
           </p>
         </div>
 
-        <button disabled={busy} className="w-full rounded-md bg-emerald-800 text-white text-sm font-medium py-2.5 hover:bg-emerald-900 disabled:opacity-60">
+        <button disabled={busy} className="w-full rounded-md bg-blue-600 text-white text-sm font-medium py-2.5 hover:bg-blue-700 disabled:opacity-60">
           {busy ? 'Booking…' : 'Create reservation'}
         </button>
       </form>

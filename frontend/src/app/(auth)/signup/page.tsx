@@ -28,69 +28,77 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="text-2xl font-semibold tracking-tight text-emerald-800">Hotel CMS</div>
-          <p className="mt-1 text-sm text-stone-500">Set up your property</p>
+    <div className="min-h-screen flex flex-col">
+      <div className="bg-blue-800 py-4">
+        <div className="max-w-6xl mx-auto px-4 flex items-center gap-2">
+          <span className="flex items-center justify-center h-7 w-7 rounded-sm bg-white text-blue-800 font-black text-sm">H</span>
+          <span className="font-semibold text-white tracking-tight">Hotel CMS</span>
         </div>
-        <form onSubmit={onSubmit} className="bg-white border border-stone-200 rounded-xl shadow-sm p-6 space-y-4">
+      </div>
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 text-center">
+          <div className="text-xl font-semibold tracking-tight text-gray-900">Set up your property</div>
+          <p className="mt-1 text-sm text-gray-500">Get your first property live in minutes</p>
+        </div>
+        <form onSubmit={onSubmit} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-4">
           {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</div>}
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Property name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Property name</label>
             <input
               required
               value={propertyName}
               onChange={(e) => setPropertyName(e.target.value)}
               placeholder="e.g. The Riverside Inn"
-              className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Your name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Your name</label>
             <input
               required
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
               required
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
-            <p className="mt-1 text-xs text-stone-400">At least 8 characters.</p>
+            <p className="mt-1 text-xs text-gray-400">At least 8 characters.</p>
           </div>
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-md bg-emerald-800 text-white text-sm font-medium py-2 hover:bg-emerald-900 disabled:opacity-60"
+            className="w-full rounded-md bg-blue-600 text-white text-sm font-semibold py-2.5 hover:bg-blue-700 disabled:opacity-60"
           >
             {busy ? 'Creating…' : 'Create property & account'}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-stone-500">
+        <p className="mt-4 text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <Link href="/login" className="text-emerald-800 font-medium hover:underline">
+          <Link href="/login" className="text-blue-600 font-medium hover:underline">
             Sign in
           </Link>
         </p>
+      </div>
       </div>
     </div>
   );

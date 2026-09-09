@@ -33,21 +33,21 @@ export default function ReportsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-stone-900">Reports</h1>
-        <p className="text-sm text-stone-500 mt-0.5">Revenue from completed stays.</p>
+        <h1 className="text-xl font-semibold text-gray-900">Reports</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Revenue from completed stays.</p>
       </div>
 
-      <div className="bg-white border border-stone-200 rounded-xl p-4 mb-6 max-w-xs">
-        <div className="text-sm text-stone-500">Total revenue (checked-out stays)</div>
-        <div className="text-2xl font-semibold text-stone-900 mt-1">£{totalRevenue.toFixed(2)}</div>
+      <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 max-w-xs">
+        <div className="text-sm text-gray-500">Total revenue (checked-out stays)</div>
+        <div className="text-2xl font-semibold text-gray-900 mt-1">£{totalRevenue.toFixed(2)}</div>
       </div>
 
-      {loading && <p className="text-sm text-stone-400">Loading…</p>}
+      {loading && <p className="text-sm text-gray-400">Loading…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-stone-50 text-stone-500 text-xs uppercase tracking-wide">
+          <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
             <tr>
               <th className="text-left px-4 py-2 font-medium">Guest</th>
               <th className="text-left px-4 py-2 font-medium">Dates</th>
@@ -56,15 +56,15 @@ export default function ReportsPage() {
           </thead>
           <tbody>
             {reservations?.map((r) => (
-              <tr key={r.id} className="border-t border-stone-100">
-                <td className="px-4 py-2.5 font-medium text-stone-800">{r.guest.name}</td>
-                <td className="px-4 py-2.5 text-stone-600">{r.checkIn} → {r.checkOut}</td>
-                <td className="px-4 py-2.5 text-right text-stone-800">£{(invoicesByReservation.get(r.id) ?? 0).toFixed(2)}</td>
+              <tr key={r.id} className="border-t border-gray-100">
+                <td className="px-4 py-2.5 font-medium text-gray-800">{r.guest.name}</td>
+                <td className="px-4 py-2.5 text-gray-600">{r.checkIn} → {r.checkOut}</td>
+                <td className="px-4 py-2.5 text-right text-gray-800">£{(invoicesByReservation.get(r.id) ?? 0).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {reservations?.length === 0 && !loading && <p className="text-sm text-stone-400 px-4 py-6">No completed stays yet.</p>}
+        {reservations?.length === 0 && !loading && <p className="text-sm text-gray-400 px-4 py-6">No completed stays yet.</p>}
       </div>
     </div>
   );

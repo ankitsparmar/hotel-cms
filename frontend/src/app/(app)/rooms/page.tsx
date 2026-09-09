@@ -20,7 +20,7 @@ interface Room {
 }
 
 const STATUS_STYLES: Record<Room['status'], string> = {
-  clean: 'bg-emerald-100 text-emerald-800',
+  clean: 'bg-blue-100 text-blue-800',
   dirty: 'bg-amber-100 text-amber-800',
   inspected: 'bg-sky-100 text-sky-800',
   out_of_order: 'bg-red-100 text-red-800',
@@ -63,11 +63,11 @@ export default function RoomsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-stone-900">Rooms</h1>
-          <p className="text-sm text-stone-500 mt-0.5">Physical rooms and their current housekeeping status.</p>
+          <h1 className="text-xl font-semibold text-gray-900">Rooms</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Physical rooms and their current housekeeping status.</p>
         </div>
         {isAdmin && (
-          <button onClick={() => setShowForm((s) => !s)} className="rounded-md bg-emerald-800 text-white text-sm font-medium px-4 py-2 hover:bg-emerald-900">
+          <button onClick={() => setShowForm((s) => !s)} className="rounded-md bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700">
             {showForm ? 'Cancel' : '+ New room'}
           </button>
         )}
@@ -75,12 +75,12 @@ export default function RoomsPage() {
 
       {showForm && <RoomForm roomTypes={roomTypes ?? []} onCreated={() => { setShowForm(false); reload(); }} />}
 
-      {loading && <p className="text-sm text-stone-400">Loading…</p>}
+      {loading && <p className="text-sm text-gray-400">Loading…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-stone-50 text-stone-500 text-xs uppercase tracking-wide">
+          <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
             <tr>
               <th className="text-left px-4 py-2 font-medium">Room</th>
               <th className="text-left px-4 py-2 font-medium">Type</th>
@@ -91,14 +91,14 @@ export default function RoomsPage() {
           </thead>
           <tbody>
             {rooms?.map((room) => (
-              <tr key={room.id} className="border-t border-stone-100">
-                <td className="px-4 py-2.5 font-medium text-stone-800">{room.roomNumber}</td>
-                <td className="px-4 py-2.5 text-stone-600">{room.roomType?.name ?? roomTypeName(room.roomTypeId)}</td>
-                <td className="px-4 py-2.5 text-stone-600">{room.floor ?? '—'}</td>
+              <tr key={room.id} className="border-t border-gray-100">
+                <td className="px-4 py-2.5 font-medium text-gray-800">{room.roomNumber}</td>
+                <td className="px-4 py-2.5 text-gray-600">{room.roomType?.name ?? roomTypeName(room.roomTypeId)}</td>
+                <td className="px-4 py-2.5 text-gray-600">{room.floor ?? '—'}</td>
                 <td className="px-4 py-2.5">
                   <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_STYLES[room.status]}`}>{room.status.replace('_', ' ')}</span>
                   {room.status === 'out_of_order' && room.outOfOrderReason && (
-                    <span className="ml-2 text-xs text-stone-400">({room.outOfOrderReason})</span>
+                    <span className="ml-2 text-xs text-gray-400">({room.outOfOrderReason})</span>
                   )}
                 </td>
                 {canChangeStatus && (
@@ -109,7 +109,7 @@ export default function RoomsPage() {
                           key={s}
                           onClick={() => setStatus(room, s)}
                           disabled={room.status === s}
-                          className="text-xs border border-stone-200 rounded px-2 py-1 hover:bg-stone-50 disabled:opacity-40"
+                          className="text-xs border border-gray-200 rounded px-2 py-1 hover:bg-gray-50 disabled:opacity-40"
                         >
                           {s}
                         </button>
@@ -129,7 +129,7 @@ export default function RoomsPage() {
             ))}
           </tbody>
         </table>
-        {rooms?.length === 0 && !loading && <p className="text-sm text-stone-400 px-4 py-6">No rooms yet.</p>}
+        {rooms?.length === 0 && !loading && <p className="text-sm text-gray-400 px-4 py-6">No rooms yet.</p>}
       </div>
     </div>
   );
@@ -178,20 +178,20 @@ function RoomForm({ roomTypes, onCreated }: { roomTypes: RoomType[]; onCreated: 
   }
 
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-4 mb-6 space-y-4">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 space-y-4">
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-3">
         {error && <div className="sm:col-span-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</div>}
         <div>
-          <label className="block text-xs font-medium text-stone-600 mb-1">Room number</label>
-          <input required value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} className="w-full rounded-md border border-stone-300 px-3 py-1.5 text-sm" />
+          <label className="block text-xs font-medium text-gray-600 mb-1">Room number</label>
+          <input required value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-600 mb-1">Floor (optional)</label>
-          <input value={floor} onChange={(e) => setFloor(e.target.value)} className="w-full rounded-md border border-stone-300 px-3 py-1.5 text-sm" />
+          <label className="block text-xs font-medium text-gray-600 mb-1">Floor (optional)</label>
+          <input value={floor} onChange={(e) => setFloor(e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-stone-600 mb-1">Room type</label>
-          <select value={roomTypeId} onChange={(e) => setRoomTypeId(e.target.value)} className="w-full rounded-md border border-stone-300 px-3 py-1.5 text-sm">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Room type</label>
+          <select value={roomTypeId} onChange={(e) => setRoomTypeId(e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm">
             {roomTypes.map((rt) => (
               <option key={rt.id} value={rt.id}>
                 {rt.name}
@@ -200,26 +200,26 @@ function RoomForm({ roomTypes, onCreated }: { roomTypes: RoomType[]; onCreated: 
           </select>
         </div>
         <div className="sm:col-span-3">
-          <button disabled={busy} className="rounded-md bg-emerald-800 text-white text-sm font-medium px-4 py-2 hover:bg-emerald-900 disabled:opacity-60">
+          <button disabled={busy} className="rounded-md bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700 disabled:opacity-60">
             {busy ? 'Creating…' : 'Create room'}
           </button>
         </div>
       </form>
 
-      <div className="border-t border-stone-100 pt-3">
-        <label className="block text-xs font-medium text-stone-600 mb-1">Bulk import (CSV — columns: room_number, room_type_id, floor)</label>
+      <div className="border-t border-gray-100 pt-3">
+        <label className="block text-xs font-medium text-gray-600 mb-1">Bulk import (CSV — columns: room_number, room_type_id, floor)</label>
         <textarea
           value={csv}
           onChange={(e) => setCsv(e.target.value)}
           rows={3}
           placeholder={`room_number,room_type_id,floor\n101,${roomTypes[0]?.id ?? '<room-type-id>'},1`}
-          className="w-full rounded-md border border-stone-300 px-3 py-1.5 text-sm font-mono"
+          className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm font-mono"
         />
         <div className="flex items-center gap-3 mt-2">
-          <button onClick={submitCsv} disabled={csvBusy || !csv} className="rounded-md border border-stone-300 text-sm font-medium px-3 py-1.5 hover:bg-stone-50 disabled:opacity-50">
+          <button onClick={submitCsv} disabled={csvBusy || !csv} className="rounded-md border border-gray-300 text-sm font-medium px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50">
             {csvBusy ? 'Importing…' : 'Import CSV'}
           </button>
-          {csvResult && <span className="text-xs text-stone-500">{csvResult}</span>}
+          {csvResult && <span className="text-xs text-gray-500">{csvResult}</span>}
         </div>
       </div>
     </div>
