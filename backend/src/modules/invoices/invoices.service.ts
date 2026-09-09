@@ -1,14 +1,64 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
+import { Property } from '../properties/entities/property.entity';
+import { Reservation } from '../reservations/entities/reservation.entity';
 import { Invoice, InvoiceLineItem } from './entities/invoice.entity';
 
 @Injectable()
 export class InvoicesService {
-  constructor(@InjectRepository(Invoice) private invoices: Repository<Invoice>) {}
+  constructor(
+    @InjectRepository(Invoice) private invoices: Repository<Invoice>,
+    @InjectRepository(Reservation) private reservations: Repository<Reservation>,
+    @InjectRepository(Property) private properties: Repository<Property>,
+  ) {}
 
   findForReservation(reservationId: string) {
     return this.invoices.find({ where: { reservationId }, order: { issuedAt: 'DESC' } });
+  }
+
+  // Full document view for one invoice — the property's own name/address/
+  // currency plus guest and stay details, so the printable template is
+  // built fresh per property rather than hardcoding any one hotel's info.
+  // Scoped to the caller's property: an invoice whose reservation belongs
+  // to a different property is treated as not found, never leaked.
+  async getDetail(propertyId: string, invoiceId: string) {
+    const invoice = await this.invoices.findOne({ where: { id: invoiceId } });
+    if (!invoice) throw new NotFoundException('Invoice not found');
+
+    const reservation = await this.reservations.findOne({
+      where: { id: invoice.reservationId, propertyId },
+      relations: { guest: true, rooms: { room: true } },
+    });
+    if (!reservation) throw new NotFoundException('Invoice not found');
+
+    const property = await this.properties.findOne({ where: { id: propertyId } });
+
+    let originalInvoiceNumber: string | undefined;
+    if (invoice.isCreditNote && invoice.creditNoteFor) {
+      const original = await this.invoices.findOne({ where: { id: invoice.creditNoteFor } });
+      originalInvoiceNumber = original?.invoiceNumber;
+    }
+
+    return {
+      id: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      lineItems: invoice.lineItems,
+      total: invoice.total,
+      isCreditNote: invoice.isCreditNote,
+      originalInvoiceNumber,
+      issuedAt: invoice.issuedAt,
+      property: property
+        ? { name: property.name, address: property.address ?? null, currency: property.currency }
+        : { name: 'Hotel CMS', address: null, currency: 'GBP' },
+      guest: { name: reservation.guest.name, email: reservation.guest.email ?? null, phone: reservation.guest.phone ?? null },
+      reservation: {
+        id: reservation.id,
+        checkIn: reservation.checkIn,
+        checkOut: reservation.checkOut,
+        rooms: reservation.rooms.map((r) => r.room.roomNumber),
+      },
+    };
   }
 
   private async nextInvoiceNumber(manager: EntityManager): Promise<string> {

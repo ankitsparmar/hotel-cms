@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api, ApiError } from '@/lib/api';
@@ -110,8 +111,18 @@ export default function ReservationDetailPage() {
   if (loading) return <p className="text-sm text-gray-400">Loading…</p>;
   if (error || !reservation) return <p className="text-sm text-red-600">{error ?? 'Not found'}</p>;
 
-  const balance =
-    (invoices ?? []).reduce((sum, inv) => sum + Number(inv.total), 0) - (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+  // Invoices are only generated at checkout (see reservations.service.ts),
+  // so before that a reservation with no invoice yet would otherwise show a
+  // balance of 0 regardless of what was actually booked. Fall back to the
+  // reservation's own room charges (priceAtBooking) as the estimated amount
+  // due until a real invoice exists — a cancelled/no-show stay owes nothing.
+  const roomsTotal = reservation.rooms.reduce((sum, r) => sum + Number(r.priceAtBooking), 0);
+  const invoicesTotal = (invoices ?? []).reduce((sum, inv) => sum + Number(inv.total), 0);
+  const hasInvoice = (invoices ?? []).some((inv) => !inv.isCreditNote);
+  const isVoided = ['cancelled', 'no_show'].includes(reservation.status);
+  const charges = hasInvoice ? invoicesTotal : isVoided ? 0 : roomsTotal;
+  const paymentsTotal = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+  const balance = charges - paymentsTotal;
 
   return (
     <div className="max-w-3xl">
@@ -178,7 +189,9 @@ export default function ReservationDetailPage() {
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <h2 className="text-sm font-medium text-gray-700 mb-3">Balance</h2>
           <p className="text-lg font-semibold text-gray-900">{symbol}{balance.toFixed(2)}</p>
-          <p className="text-xs text-gray-400">Invoiced minus payments received</p>
+          <p className="text-xs text-gray-400">
+            {hasInvoice ? 'Invoiced minus payments received' : isVoided ? 'Nothing due' : 'Estimated from booked rate — invoiced at checkout'}
+          </p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-4 sm:col-span-2">
@@ -215,8 +228,10 @@ export default function ReservationDetailPage() {
           {invoices?.length === 0 && <p className="text-sm text-gray-400">Generated automatically at checkout.</p>}
           {invoices?.map((inv) => (
             <div key={inv.id} className="border-t border-gray-100 pt-2 mt-2 first:border-t-0 first:pt-0 first:mt-0">
-              <div className="flex justify-between text-sm font-medium text-gray-800">
-                <span>{inv.invoiceNumber}{inv.isCreditNote && ' (credit note)'}</span>
+              <div className="flex justify-between items-center text-sm font-medium text-gray-800">
+                <Link href={`/invoices/${inv.id}`} className="text-blue-700 hover:underline">
+                  {inv.invoiceNumber}{inv.isCreditNote && ' (credit note)'}
+                </Link>
                 <span>{symbol}{inv.total}</span>
               </div>
               <ul className="text-xs text-gray-500 mt-1">

@@ -22,7 +22,7 @@ export function Nav() {
   const items = ALL_ITEMS.filter((i) => i.roles.includes(user.role));
 
   return (
-    <header className="sticky top-0 z-10">
+    <header className="sticky top-0 z-10 print:hidden">
       <div className="bg-blue-800">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">

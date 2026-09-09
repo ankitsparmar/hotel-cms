@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { CurrentUser, AuthUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../../common/enums';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -14,6 +15,11 @@ export class InvoicesController {
   @Get('reservations/:id/invoices')
   findForReservation(@Param('id') id: string) {
     return this.service.findForReservation(id);
+  }
+
+  @Get('invoices/:id')
+  getDetail(@CurrentUser() actor: AuthUser, @Param('id') id: string) {
+    return this.service.getDetail(actor.propertyId, id);
   }
 
   @Roles(UserRole.OWNER, UserRole.ADMIN, UserRole.ACCOUNTANT)
