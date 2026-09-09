@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { api, ApiError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { CURRENCY_OPTIONS, useCurrency } from '@/lib/currency';
 import { useFetch } from '@/lib/use-fetch';
 
 interface Property {
@@ -68,6 +69,7 @@ function Section({ title, description, children }: { title: string; description:
 
 function PropertySection() {
   const { data: property, loading, reload } = useFetch(() => api.get<Property>('/property'));
+  const { setCurrency } = useCurrency();
   const [form, setForm] = useState<Property | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -80,6 +82,7 @@ function PropertySection() {
     setSaved(false);
     try {
       await api.patch('/property', active);
+      setCurrency(active.currency);
       setSaved(true);
       reload();
     } catch {
@@ -100,7 +103,20 @@ function PropertySection() {
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Currency</label>
-          <input value={active.currency} onChange={(e) => setForm({ ...active, currency: e.target.value })} className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
+          <select
+            value={active.currency}
+            onChange={(e) => setForm({ ...active, currency: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+          >
+            {!CURRENCY_OPTIONS.some((c) => c.code === active.currency) && (
+              <option value={active.currency}>{active.currency}</option>
+            )}
+            {CURRENCY_OPTIONS.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="sm:col-span-2">
           <label className="block text-xs font-medium text-gray-600 mb-1">Address</label>

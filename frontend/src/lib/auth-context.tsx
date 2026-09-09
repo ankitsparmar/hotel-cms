@@ -17,7 +17,7 @@ interface AuthContextValue {
   user: AuthedUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (propertyName: string, ownerName: string, email: string, password: string) => Promise<void>;
+  signup: (propertyName: string, ownerName: string, email: string, password: string, referralCode: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -41,12 +41,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push(res.user.role === 'super_admin' ? '/platform' : '/calendar');
   }
 
-  async function signup(propertyName: string, ownerName: string, email: string, password: string) {
+  async function signup(propertyName: string, ownerName: string, email: string, password: string, referralCode: string) {
     const res = await api.post<{ accessToken: string; user: AuthedUser }>('/auth/signup', {
       propertyName,
       ownerName,
       email,
       password,
+      referralCode,
     });
     setToken(res.accessToken);
     setStoredUser(res.user);

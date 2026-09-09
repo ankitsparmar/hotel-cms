@@ -1,6 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
+import { useCurrency } from '@/lib/currency';
 import { useFetch } from '@/lib/use-fetch';
 
 interface Reservation {
@@ -17,6 +18,7 @@ interface Invoice {
 }
 
 export default function ReportsPage() {
+  const { symbol } = useCurrency();
   const { data: reservations, loading, error } = useFetch(() => api.get<Reservation[]>('/reservations?status=checked_out'));
   const { data: invoiceLists } = useFetch(async () => {
     const list = await api.get<Reservation[]>('/reservations?status=checked_out');
@@ -39,7 +41,7 @@ export default function ReportsPage() {
 
       <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 max-w-xs">
         <div className="text-sm text-gray-500">Total revenue (checked-out stays)</div>
-        <div className="text-2xl font-semibold text-gray-900 mt-1">£{totalRevenue.toFixed(2)}</div>
+        <div className="text-2xl font-semibold text-gray-900 mt-1">{symbol}{totalRevenue.toFixed(2)}</div>
       </div>
 
       {loading && <p className="text-sm text-gray-400">Loading…</p>}
@@ -59,7 +61,7 @@ export default function ReportsPage() {
               <tr key={r.id} className="border-t border-gray-100">
                 <td className="px-4 py-2.5 font-medium text-gray-800">{r.guest.name}</td>
                 <td className="px-4 py-2.5 text-gray-600">{r.checkIn} → {r.checkOut}</td>
-                <td className="px-4 py-2.5 text-right text-gray-800">£{(invoicesByReservation.get(r.id) ?? 0).toFixed(2)}</td>
+                <td className="px-4 py-2.5 text-right text-gray-800">{symbol}{(invoicesByReservation.get(r.id) ?? 0).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

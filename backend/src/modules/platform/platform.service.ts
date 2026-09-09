@@ -6,10 +6,13 @@ import { Repository } from 'typeorm';
 import { UserRole } from '../../common/enums';
 import { AuthService } from '../auth/auth.service';
 import { Property } from '../properties/entities/property.entity';
+import { generateReferralCode } from '../referral-codes/generate-code';
+import { ReferralCode } from '../referral-codes/entities/referral-code.entity';
 import { Reservation } from '../reservations/entities/reservation.entity';
 import { Room } from '../rooms/entities/room.entity';
 import { User } from '../users/entities/user.entity';
 import { BootstrapSuperAdminDto } from './dto/bootstrap-super-admin.dto';
+import { CreateReferralCodeDto } from './dto/create-referral-code.dto';
 
 // The one deliberate cross-tenant surface in the app: everything here reads
 // or writes across ALL properties, gated entirely on UserRole.SUPER_ADMIN.
@@ -21,6 +24,7 @@ export class PlatformService {
     @InjectRepository(User) private users: Repository<User>,
     @InjectRepository(Room) private rooms: Repository<Room>,
     @InjectRepository(Reservation) private reservations: Repository<Reservation>,
+    @InjectRepository(ReferralCode) private referralCodes: Repository<ReferralCode>,
     private config: ConfigService,
     private authService: AuthService,
   ) {}
@@ -90,6 +94,54 @@ export class PlatformService {
       this.reservations.count(),
     ]);
     return { propertyCount, suspendedCount, userCount, roomCount, reservationCount };
+  }
+
+  async createReferralCode(actorUserId: string, dto: CreateReferralCodeDto) {
+    // Collisions are astronomically unlikely (32^8 alphabet) but retry once
+    // just in case, since `code` is unique.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const code = this.referralCodes.create({
+        code: generateReferralCode(),
+        note: dto.note || undefined,
+        createdByUserId: actorUserId,
+      });
+      try {
+        return await this.referralCodes.save(code);
+      } catch (err) {
+        const isUniqueViolation = (err as { code?: string })?.code === '23505';
+        if (!isUniqueViolation || attempt === 4) throw err;
+      }
+    }
+    throw new ConflictException('Could not generate a unique referral code — try again');
+  }
+
+  async listReferralCodes() {
+    const codes = await this.referralCodes.find({ order: { createdAt: 'DESC' } });
+    const propertyIds = codes.map((c) => c.usedByPropertyId).filter((id): id is string => !!id);
+    const properties = propertyIds.length
+      ? await this.properties.find({ where: propertyIds.map((id) => ({ id })) })
+      : [];
+    const propertyNameById = new Map(properties.map((p) => [p.id, p.name]));
+    return codes.map((c) => ({
+      id: c.id,
+      code: c.code,
+      note: c.note ?? null,
+      revoked: c.revoked,
+      usedAt: c.usedAt,
+      usedByProperty: c.usedByPropertyId ? { id: c.usedByPropertyId, name: propertyNameById.get(c.usedByPropertyId) ?? '—' } : null,
+      createdAt: c.createdAt,
+    }));
+  }
+
+  async revokeReferralCode(id: string) {
+    const code = await this.referralCodes.findOne({ where: { id } });
+    if (!code) throw new NotFoundException('Referral code not found');
+    if (code.usedByPropertyId) {
+      throw new ConflictException('This referral code has already been used and cannot be revoked');
+    }
+    code.revoked = true;
+    await this.referralCodes.save(code);
+    return code;
   }
 
   private async withStats(property: Property) {

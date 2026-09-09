@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { api, ApiError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useCurrency } from '@/lib/currency';
 import { useFetch } from '@/lib/use-fetch';
 
 interface RoomType {
@@ -21,6 +22,7 @@ interface RatePlan {
 
 export default function RatePlansPage() {
   const { user } = useAuth();
+  const { symbol } = useCurrency();
   const isAdmin = user?.role === 'owner' || user?.role === 'admin';
   const { data: roomTypes } = useFetch(() => api.get<RoomType[]>('/room-types'));
   const { data: plans, loading, error, reload } = useFetch(() => api.get<RatePlan[]>('/rate-plans'));
@@ -46,7 +48,7 @@ export default function RatePlansPage() {
         {roomTypes?.map((rt) => (
           <div key={rt.id} className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="text-sm text-gray-500">{rt.name}</div>
-            <div className="text-lg font-semibold text-gray-900 mt-1">£{rt.baseRate}<span className="text-xs font-normal text-gray-400"> base/night</span></div>
+            <div className="text-lg font-semibold text-gray-900 mt-1">{symbol}{rt.baseRate}<span className="text-xs font-normal text-gray-400"> base/night</span></div>
           </div>
         ))}
       </div>
@@ -72,7 +74,7 @@ export default function RatePlansPage() {
               <tr key={p.id} className="border-t border-gray-100">
                 <td className="px-4 py-2.5 font-medium text-gray-800">{p.name}</td>
                 <td className="px-4 py-2.5 text-gray-600">{roomTypeName(p.roomTypeId)}</td>
-                <td className="px-4 py-2.5 text-gray-600">£{p.price}</td>
+                <td className="px-4 py-2.5 text-gray-600">{symbol}{p.price}</td>
                 <td className="px-4 py-2.5 text-gray-600">{p.validFrom} → {p.validTo}</td>
                 {isAdmin && (
                   <td className="px-4 py-2.5 text-right">
@@ -98,6 +100,7 @@ export default function RatePlansPage() {
 }
 
 function RatePlanForm({ roomTypes, onCreated }: { roomTypes: RoomType[]; onCreated: () => void }) {
+  const { symbol } = useCurrency();
   const [roomTypeId, setRoomTypeId] = useState(roomTypes[0]?.id ?? '');
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
@@ -136,7 +139,7 @@ function RatePlanForm({ roomTypes, onCreated }: { roomTypes: RoomType[]; onCreat
         <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Summer 2027" className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Price/night (£)</label>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Price/night ({symbol})</label>
         <input type="number" min={0} step="0.01" required value={price} onChange={(e) => setPrice(Number(e.target.value))} className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
       </div>
       <div className="grid grid-cols-2 gap-2">

@@ -18,4 +18,10 @@ export class SignupDto {
   @IsString()
   @MinLength(8)
   password: string;
+
+  // Signup is gated on a referral code minted by a super admin — see
+  // ReferralCode / PlatformService.createReferralCode.
+  @IsString()
+  @MinLength(4)
+  referralCode: string;
 }

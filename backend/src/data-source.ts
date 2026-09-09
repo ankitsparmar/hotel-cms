@@ -15,6 +15,7 @@ import { Invoice } from './modules/invoices/entities/invoice.entity';
 import { OTAChannel } from './modules/ota/entities/ota-channel.entity';
 import { OTASyncLog } from './modules/ota/entities/ota-sync-log.entity';
 import { AuditLog } from './modules/audit/entities/audit-log.entity';
+import { ReferralCode } from './modules/referral-codes/entities/referral-code.entity';
 
 export const entities = [
   Property,
@@ -32,6 +33,7 @@ export const entities = [
   OTAChannel,
   OTASyncLog,
   AuditLog,
+  ReferralCode,
 ];
 
 export const AppDataSource = new DataSource({

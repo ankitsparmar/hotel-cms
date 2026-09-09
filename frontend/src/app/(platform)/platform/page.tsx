@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import { useFetch } from '@/lib/use-fetch';
 
 interface PropertySummary {
@@ -76,6 +77,7 @@ export default function PlatformPage() {
               <th className="text-left px-4 py-2 font-medium">Signed up</th>
               <th className="text-left px-4 py-2 font-medium">Status</th>
               <th className="px-4 py-2"></th>
+              <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -118,6 +120,11 @@ export default function PlatformPage() {
                     {p.suspended ? 'Reinstate' : 'Suspend'}
                   </button>
                 </td>
+                <td className="px-4 py-2.5 text-right">
+                  <Link href={`/platform/properties/${p.id}`} className="text-xs font-medium text-blue-700 hover:underline">
+                    View users →
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -125,6 +132,142 @@ export default function PlatformPage() {
         {properties?.length === 0 && !loading && (
           <p className="text-sm text-gray-400 px-4 py-6">No properties have signed up yet.</p>
         )}
+      </div>
+
+      <ReferralCodesSection />
+    </div>
+  );
+}
+
+interface ReferralCodeRow {
+  id: string;
+  code: string;
+  note: string | null;
+  revoked: boolean;
+  usedAt: string | null;
+  usedByProperty: { id: string; name: string } | null;
+  createdAt: string;
+}
+
+function ReferralCodesSection() {
+  const { data: codes, loading, error, reload } = useFetch(() => api.get<ReferralCodeRow[]>('/platform/referral-codes'));
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  async function createCode(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setActionError(null);
+    try {
+      await api.post('/platform/referral-codes', { note: note || undefined });
+      setNote('');
+      reload();
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : 'Failed to create referral code');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function revoke(id: string) {
+    setBusyId(id);
+    setActionError(null);
+    try {
+      await api.del(`/platform/referral-codes/${id}`);
+      reload();
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : 'Failed to revoke code');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function copy(id: string, code: string) {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1500);
+    } catch {
+      /* clipboard not available — ignore */
+    }
+  }
+
+  return (
+    <div className="mt-8">
+      <div className="mb-3">
+        <h2 className="text-base font-semibold text-gray-900">Referral codes</h2>
+        <p className="text-sm text-gray-500 mt-0.5">Signup requires one of these codes. Only a super admin can create them, and each is single-use.</p>
+      </div>
+
+      <form onSubmit={createCode} className="flex items-end gap-2 mb-4 flex-wrap">
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Note (optional)</label>
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="e.g. For Acme Hotels"
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm w-64"
+          />
+        </div>
+        <button disabled={busy} className="rounded-md bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700 disabled:opacity-60">
+          {busy ? 'Generating…' : '+ New code'}
+        </button>
+      </form>
+
+      {actionError && <div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">{actionError}</div>}
+      {loading && <p className="text-sm text-gray-400">Loading…</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+            <tr>
+              <th className="text-left px-4 py-2 font-medium">Code</th>
+              <th className="text-left px-4 py-2 font-medium">Note</th>
+              <th className="text-left px-4 py-2 font-medium">Status</th>
+              <th className="text-left px-4 py-2 font-medium">Created</th>
+              <th className="px-4 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {codes?.map((c) => (
+              <tr key={c.id} className="border-t border-gray-100">
+                <td className="px-4 py-2.5 font-mono font-medium text-gray-800">
+                  {c.code}{' '}
+                  <button onClick={() => copy(c.id, c.code)} className="text-xs font-sans text-gray-400 hover:text-blue-700">
+                    {copiedId === c.id ? 'Copied' : 'Copy'}
+                  </button>
+                </td>
+                <td className="px-4 py-2.5 text-gray-600">{c.note ?? <span className="text-gray-300">—</span>}</td>
+                <td className="px-4 py-2.5">
+                  {c.usedByProperty ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Used by {c.usedByProperty.name}</span>
+                  ) : c.revoked ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Revoked</span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">Unused</span>
+                  )}
+                </td>
+                <td className="px-4 py-2.5 text-gray-600">{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-2.5 text-right">
+                  {!c.usedByProperty && !c.revoked && (
+                    <button
+                      onClick={() => revoke(c.id)}
+                      disabled={busyId === c.id}
+                      className="text-xs text-gray-400 hover:text-red-600 disabled:opacity-60"
+                    >
+                      Revoke
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {codes?.length === 0 && !loading && <p className="text-sm text-gray-400 px-4 py-6">No referral codes yet.</p>}
       </div>
     </div>
   );

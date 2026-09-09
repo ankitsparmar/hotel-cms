@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api, ApiError } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useCurrency } from '@/lib/currency';
 import { useFetch } from '@/lib/use-fetch';
 
 interface ReservationRoom {
@@ -46,6 +47,7 @@ export default function ReservationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const { symbol } = useCurrency();
   const canAct = ['owner', 'admin', 'front_desk'].includes(user?.role ?? '');
 
   const { data: reservation, loading, error, reload } = useFetch(() => api.get<Reservation>(`/reservations/${id}`), [id]);
@@ -175,7 +177,7 @@ export default function ReservationDetailPage() {
 
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <h2 className="text-sm font-medium text-gray-700 mb-3">Balance</h2>
-          <p className="text-lg font-semibold text-gray-900">£{balance.toFixed(2)}</p>
+          <p className="text-lg font-semibold text-gray-900">{symbol}{balance.toFixed(2)}</p>
           <p className="text-xs text-gray-400">Invoiced minus payments received</p>
         </div>
 
@@ -200,7 +202,7 @@ export default function ReservationDetailPage() {
               {payments?.map((p) => (
                 <li key={p.id} className="flex justify-between">
                   <span className="capitalize">{p.method.replace('_', ' ')}</span>
-                  <span>£{p.amount}</span>
+                  <span>{symbol}{p.amount}</span>
                 </li>
               ))}
               {payments?.length === 0 && <li className="text-gray-400">No payments yet.</li>}
@@ -215,12 +217,12 @@ export default function ReservationDetailPage() {
             <div key={inv.id} className="border-t border-gray-100 pt-2 mt-2 first:border-t-0 first:pt-0 first:mt-0">
               <div className="flex justify-between text-sm font-medium text-gray-800">
                 <span>{inv.invoiceNumber}{inv.isCreditNote && ' (credit note)'}</span>
-                <span>£{inv.total}</span>
+                <span>{symbol}{inv.total}</span>
               </div>
               <ul className="text-xs text-gray-500 mt-1">
                 {inv.lineItems.map((li, i) => (
                   <li key={i}>
-                    {li.description} — £{li.total}
+                    {li.description} — {symbol}{li.total}
                   </li>
                 ))}
               </ul>
@@ -233,6 +235,7 @@ export default function ReservationDetailPage() {
 }
 
 function PaymentForm({ reservationId, onCaptured }: { reservationId: string; onCaptured: () => void }) {
+  const { symbol } = useCurrency();
   const [amount, setAmount] = useState(0);
   const [method, setMethod] = useState('card');
   const [busy, setBusy] = useState(false);
@@ -257,7 +260,7 @@ function PaymentForm({ reservationId, onCaptured }: { reservationId: string; onC
     <form onSubmit={submit} className="flex items-end gap-2 flex-wrap">
       {error && <div className="w-full text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">{error}</div>}
       <div>
-        <label className="block text-xs text-gray-500 mb-1">Amount (£)</label>
+        <label className="block text-xs text-gray-500 mb-1">Amount ({symbol})</label>
         <input type="number" min={0.01} step="0.01" value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm w-28" />
       </div>
       <div>

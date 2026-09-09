@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { CurrencyProvider } from '@/lib/currency';
 import { Nav } from '@/components/Nav';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -19,9 +20,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Nav />
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">{children}</main>
-    </div>
+    <CurrencyProvider>
+      <div className="min-h-screen flex flex-col">
+        <Nav />
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">{children}</main>
+      </div>
+    </CurrencyProvider>
   );
 }

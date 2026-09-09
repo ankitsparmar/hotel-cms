@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -19,7 +20,7 @@ export default function SignupPage() {
     setError(null);
     setBusy(true);
     try {
-      await signup(propertyName, ownerName, email, password);
+      await signup(propertyName, ownerName, email, password, referralCode.trim());
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong');
     } finally {
@@ -83,6 +84,17 @@ export default function SignupPage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
             <p className="mt-1 text-xs text-gray-400">At least 8 characters.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Referral code</label>
+            <input
+              required
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              placeholder="e.g. AB12-CD34"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+            <p className="mt-1 text-xs text-gray-400">Signup is invite-only — ask whoever invited you for a code.</p>
           </div>
           <button
             type="submit"
