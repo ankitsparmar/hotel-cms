@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { AuthUser } from '../../common/decorators/current-user.decorator';
 import { PROPERTY_ADMIN_ROLES, UserRole } from '../../common/enums';
+import { ensureUniqueUsername, normalizeUsername, usernameFromEmail } from '../../common/username';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { HousekeepingTask } from '../housekeeping/entities/housekeeping-task.entity';
 import { RoomStatusLog } from '../housekeeping/entities/room-status-log.entity';
@@ -37,8 +38,27 @@ export class UsersService {
     throw new ForbiddenException('Only Owner/Admin can manage users');
   }
 
-  findAll(propertyId: string) {
-    return this.users.find({ where: { propertyId }, order: { createdAt: 'ASC' } });
+  // Strips passwordHash and the reset/verification token hashes before a
+  // user record ever leaves this service — those are internal secrets, not
+  // fields the admin/users API (or anything downstream of it) should expose.
+  private toSafe(user: User) {
+    return {
+      id: user.id,
+      propertyId: user.propertyId,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      active: user.active,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async findAll(propertyId: string) {
+    const users = await this.users.find({ where: { propertyId }, order: { createdAt: 'ASC' } });
+    return users.map((u) => this.toSafe(u));
   }
 
   async create(actor: AuthUser, dto: CreateUserDto) {
@@ -46,16 +66,26 @@ export class UsersService {
     const existing = await this.users.findOne({ where: { email: dto.email.toLowerCase() } });
     if (existing) throw new ConflictException('A user with this email already exists');
 
+    if (dto.username) {
+      const usernameTaken = await this.users.findOne({ where: { propertyId: actor.propertyId, username: dto.username } });
+      if (usernameTaken) throw new ConflictException('That username is already taken');
+    }
+    const username = await ensureUniqueUsername(
+      dto.username ? normalizeUsername(dto.username) : usernameFromEmail(dto.email),
+      async (candidate) => (await this.users.findOne({ where: { propertyId: actor.propertyId, username: candidate } })) !== null,
+    );
+
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const user = this.users.create({
       propertyId: actor.propertyId,
       name: dto.name,
       email: dto.email.toLowerCase(),
+      username,
       passwordHash,
       role: dto.role,
       active: dto.active ?? true,
     });
-    return this.users.save(user);
+    return this.toSafe(await this.users.save(user));
   }
 
   async update(actor: AuthUser, id: string, dto: UpdateUserDto) {
@@ -64,13 +94,18 @@ export class UsersService {
     this.assertCanManage(actor, user.role);
     if (dto.role) this.assertCanManage(actor, dto.role);
 
+    if (dto.username && dto.username !== user.username) {
+      const taken = await this.users.findOne({ where: { propertyId: actor.propertyId, username: dto.username } });
+      if (taken) throw new ConflictException('That username is already taken');
+      user.username = dto.username;
+    }
     if (dto.name) user.name = dto.name;
     if (dto.email) user.email = dto.email.toLowerCase();
     if (dto.role) user.role = dto.role;
     if (dto.active !== undefined) user.active = dto.active;
     if (dto.password) user.passwordHash = await bcrypt.hash(dto.password, 12);
 
-    return this.users.save(user);
+    return this.toSafe(await this.users.save(user));
   }
 
   // Hard delete only succeeds when the user has zero history (spec §2.1) —

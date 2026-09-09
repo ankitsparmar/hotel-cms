@@ -36,6 +36,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  username: string | null;
   role: string;
   active: boolean;
 }
@@ -282,6 +283,7 @@ function UsersSection({ isOwner }: { isOwner: boolean }) {
             <div>
               <span className="font-medium text-gray-800">{u.name}</span>{' '}
               <span className="text-gray-400">{u.email}</span>
+              {u.username && <span className="text-gray-300"> · @{u.username}</span>}
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">{u.role.replace('_', ' ')}</span>
@@ -308,6 +310,7 @@ function UsersSection({ isOwner }: { isOwner: boolean }) {
 function UserForm({ isOwner, onCreated }: { isOwner: boolean; onCreated: () => void }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('front_desk');
   const [error, setError] = useState<string | null>(null);
@@ -322,7 +325,7 @@ function UserForm({ isOwner, onCreated }: { isOwner: boolean; onCreated: () => v
     setBusy(true);
     setError(null);
     try {
-      await api.post('/admin/users', { name, email, password, role });
+      await api.post('/admin/users', { name, email, username: username.trim() || undefined, password, role });
       onCreated();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to create user');
@@ -336,6 +339,13 @@ function UserForm({ isOwner, onCreated }: { isOwner: boolean; onCreated: () => v
       {error && <div className="sm:col-span-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-1.5">{error}</div>}
       <input required placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
       <input required type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
+      <input
+        placeholder="Username (optional)"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        pattern="[a-zA-Z0-9_.-]{3,32}"
+        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+      />
       <input required type="password" minLength={8} placeholder="Temporary password" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm" />
       <select value={role} onChange={(e) => setRole(e.target.value)} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm">
         {roleOptions.map((r) => (

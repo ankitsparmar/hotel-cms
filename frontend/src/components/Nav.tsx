@@ -13,6 +13,7 @@ const ALL_ITEMS = [
   { href: '/housekeeping', label: 'Housekeeping', roles: ['owner', 'admin', 'housekeeping', 'front_desk'] },
   { href: '/reports', label: 'Reports', roles: ['owner', 'admin', 'accountant'] },
   { href: '/settings', label: 'Settings', roles: ['owner', 'admin'] },
+  { href: '/profile', label: 'Profile', roles: ['owner', 'admin', 'front_desk', 'housekeeping', 'accountant'] },
 ];
 
 export function Nav() {
@@ -31,10 +32,10 @@ export function Nav() {
               <span className="font-semibold text-white tracking-tight">Hotel CMS</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
+              <Link href="/profile" className="text-right hidden sm:block hover:opacity-90">
                 <div className="text-sm font-medium text-white">{user.name}</div>
                 <div className="text-xs text-blue-200 capitalize">{user.role.replace('_', ' ')}</div>
-              </div>
+              </Link>
               <button
                 onClick={logout}
                 className="text-sm text-white border border-blue-400/60 hover:bg-blue-700 rounded-sm px-3 py-1.5 font-medium transition-colors"

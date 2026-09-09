@@ -1,12 +1,19 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+
+const NAV_ITEMS = [
+  { href: '/platform', label: 'Dashboard' },
+  { href: '/platform/profile', label: 'Profile' },
+];
 
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (loading) return;
@@ -30,7 +37,9 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-blue-200 hidden sm:inline">{user.name}</span>
+            <Link href="/platform/profile" className="text-sm text-blue-200 hidden sm:inline hover:text-white">
+              {user.name}
+            </Link>
             <button
               onClick={logout}
               className="text-sm text-white border border-blue-700 hover:bg-blue-900 rounded-sm px-3 py-1.5 font-medium transition-colors"
@@ -40,6 +49,26 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
           </div>
         </div>
       </header>
+      <div className="bg-blue-900/95 border-b border-blue-800">
+        <div className="max-w-6xl mx-auto px-4">
+          <nav className="flex items-center gap-1">
+            {NAV_ITEMS.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                    active ? 'border-white text-white' : 'border-transparent text-blue-200 hover:text-white hover:border-blue-400'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">{children}</main>
     </div>
   );

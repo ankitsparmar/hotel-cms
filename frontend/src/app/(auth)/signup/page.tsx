@@ -10,6 +10,7 @@ export default function SignupPage() {
   const [propertyName, setPropertyName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export default function SignupPage() {
     setError(null);
     setBusy(true);
     try {
-      await signup(propertyName, ownerName, email, password, referralCode.trim());
+      await signup(propertyName, ownerName, email, password, referralCode.trim(), username.trim());
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong');
     } finally {
@@ -72,6 +73,19 @@ export default function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="e.g. jane-owner"
+              pattern="[a-zA-Z0-9_.-]{3,32}"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+            <p className="mt-1 text-xs text-gray-400">Sign in with this instead of your email. Leave blank to generate one from your email.</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>

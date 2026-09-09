@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailModule } from '../mail/mail.module';
 import { Property } from '../properties/entities/property.entity';
 import { ReferralCode } from '../referral-codes/entities/referral-code.entity';
 import { User } from '../users/entities/user.entity';
@@ -13,6 +14,7 @@ import { JwtStrategy } from './jwt.strategy';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Property, User, ReferralCode]),
+    MailModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

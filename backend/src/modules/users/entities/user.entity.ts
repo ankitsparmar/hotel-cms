@@ -4,6 +4,7 @@ import { Property } from '../../properties/entities/property.entity';
 
 @Entity('users')
 @Index(['propertyId', 'email'], { unique: true })
+@Index(['propertyId', 'username'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -22,6 +23,13 @@ export class User {
   @Column()
   email: string;
 
+  // Alternate sign-in identifier alongside email. Nullable at the DB level
+  // for pre-existing rows, but every row created going forward always gets
+  // one (auto-generated from the email's local part when not chosen), so in
+  // practice this is never null after AuthService.signup/UsersService.create.
+  @Column({ nullable: true })
+  username: string | null;
+
   @Column()
   passwordHash: string;
 
@@ -30,6 +38,23 @@ export class User {
 
   @Column({ default: true })
   active: boolean;
+
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  // Hashed (never the raw token — the raw value only ever exists in the
+  // emailed link) verification/reset tokens, cleared once consumed.
+  @Column({ nullable: true })
+  emailVerificationTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerificationExpires: Date | null;
+
+  @Column({ nullable: true })
+  passwordResetTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetExpires: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;

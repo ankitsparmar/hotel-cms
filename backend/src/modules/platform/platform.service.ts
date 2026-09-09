@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { UserRole } from '../../common/enums';
+import { ensureUniqueUsername, normalizeUsername, usernameFromEmail } from '../../common/username';
 import { AuthService } from '../auth/auth.service';
 import { Property } from '../properties/entities/property.entity';
 import { generateReferralCode } from '../referral-codes/generate-code';
@@ -46,14 +47,20 @@ export class PlatformService {
       throw new ConflictException('An account with this email already exists');
     }
 
+    const username = await ensureUniqueUsername(
+      dto.username ? normalizeUsername(dto.username) : usernameFromEmail(dto.email),
+      async (candidate) => (await this.users.findOne({ where: { propertyId: null, username: candidate } })) !== null,
+    );
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const admin = this.users.create({
       propertyId: null,
       name: dto.name,
       email: dto.email.toLowerCase(),
+      username,
       passwordHash,
       role: UserRole.SUPER_ADMIN,
       active: true,
+      emailVerified: true, // bootstrapped by whoever holds the deploy secret — no one to verify against
     });
     await this.users.save(admin);
     return this.authService.issueToken(admin);

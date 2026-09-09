@@ -1,8 +1,10 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsEmail, IsEnum, IsOptional, IsString, Matches, MinLength } from 'class-validator';
-import { UserRole } from '../../../common/enums';
+import { IsEmail, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
-export class UpdateUserDto {
+// Self-service profile edit — deliberately narrower than admin's
+// UpdateUserDto: no role/active here, since a user can never change their
+// own permissions or reactivate themselves.
+export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   @MinLength(2)
@@ -19,17 +21,4 @@ export class UpdateUserDto {
     message: 'Username must be 3-32 characters: letters, numbers, "_", "." or "-"',
   })
   username?: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(8)
-  password?: string;
-
-  @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
-
-  @IsOptional()
-  @IsBoolean()
-  active?: boolean;
 }

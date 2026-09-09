@@ -44,13 +44,16 @@ export class UsersController {
   @Patch(':id')
   async update(@CurrentUser() actor: AuthUser, @Param('id') id: string, @Body() dto: UpdateUserDto) {
     const user = await this.users.update(actor, id, dto);
+    // Never persist the raw password into audit history — record only that
+    // it changed, not its value.
+    const { password, ...safeDto } = dto;
     await this.audit.log({
       propertyId: actor.propertyId,
       actorId: actor.userId,
       action: 'user.update',
       targetType: 'user',
       targetId: id,
-      metadata: { ...dto },
+      metadata: password ? { ...safeDto, passwordChanged: true } : safeDto,
     });
     return user;
   }
